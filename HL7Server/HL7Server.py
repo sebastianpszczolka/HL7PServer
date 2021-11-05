@@ -1,17 +1,33 @@
 import logging
 
 from txHL7.receiver import AbstractHL7Receiver, MessageContainer
-from twisted.internet import defer
+
+from database.DB import DB
 from lib.core.log import LogMixin
 from txHL7.mllp import IHL7Receiver, MLLPFactory
+from txHL7.receiver import AbstractHL7Receiver
+from twisted.internet import threads
 
 
 class HL7ServerLoggingReceiver(AbstractHL7Receiver, LogMixin):
-    """Simple MLLP receiver implementation that logs and ACKs messages."""
 
-    def handleMessage(self, message_container: MessageContainer):
-        self.logger.info(message_container.raw_message)
-        return defer.succeed(message_container.ack())
+    def __init__(self, manage_db: DB):
+        self._manage_db = manage_db
+
+    def saveMessage(self, message: MessageContainer):
+
+        try:
+            self._manage_db.save_simple_text_record(message.raw_message)
+            return message.ack()
+        except:
+            self.logger.exception('HL7ServerLoggingReceiver->saveMessage')
+            return message.ack(ack_code='AR')
+
+    def handleMessage(self, message):
+        return threads.deferToThread(self.saveMessage, message)
+
+    def getCodec(self):
+        return 'cp1250'
 
 
 class HL7ServerFactory(MLLPFactory, LogMixin):

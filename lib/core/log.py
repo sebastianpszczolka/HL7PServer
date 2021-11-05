@@ -21,7 +21,8 @@ def logger_init(file_name, logger_name='default'):
         ch.setFormatter(formatter)
         logger.addHandler(ch)
 
-        fh = logging.handlers.RotatingFileHandler(file_name + '.log', maxBytes=(3 * 1048576), backupCount=10)
+        fh = logging.handlers.RotatingFileHandler(file_name + '.log', maxBytes=(3 * 1048576), backupCount=10,
+                                                  encoding='utf-8')
         fh.setFormatter(formatter)
         logger.addHandler(fh)
 

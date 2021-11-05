@@ -1,1 +1,8 @@
 # HL7PServer
+### Database
+```
+CREATE ROLE client1 NOINHERIT NOREPLICATION LOGIN PASSWORD 'client1';
+CREATE DATABASE medic WITH OWNER = client1 ENCODING = 'UTF8' TEMPLATE = template0;
+CREATE TABLE public.t_record (r_id BIGSERIAL PRIMARY KEY, r_record TEXT NOT NULL DEFAULT '', r_created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now());
+ALTER TABLE public.t_record OWNER TO client1;
+```
